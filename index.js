@@ -5,6 +5,12 @@ var axios = require("axios");
 var fs = require("fs");
 var app = express();
 var cors = require("cors");
+const http = require('http').createServer(app);
+
+var io = require("socket.io")(http, { cors: {
+  origin: "http://localhost:4200",
+}});
+
 const session = require("express-session");
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -26,6 +32,36 @@ var corsOptions = {
   },
   credentials: true,
 };
+
+var pdfStatus = 0;
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  socket.emit('get-pdf-status', pdfStatus)
+
+  socket.on('pdf-status', pobject => {
+    pdfStatus = pobject.status;
+    const pdf = {
+      pdfStatus,
+      filename: pobject.pdfId
+    }
+
+    console.log(pdf)
+    //socket.emit('pdf',pdf)
+    io.emit('pdf', pdf);
+
+    // io.emit('')
+  })
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
+
+
+
+
 
 app.use(cors(corsOptions));
 app.set("trust proxy", 1); // trust first proxy
@@ -151,6 +187,6 @@ loginToken: '${response.data.data.authToken}'
     });
 });
 
-app.listen(3030, function () {
+http.listen(3030, function () {
   console.log("Example app listening on port 3030!");
 });

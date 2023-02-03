@@ -1,15 +1,16 @@
-
 var express = require("express");
 var bodyParser = require("body-parser");
 var axios = require("axios");
 var fs = require("fs");
 var app = express();
 var cors = require("cors");
-const http = require('http').createServer(app);
+const http = require("http").createServer(app);
 
-var io = require("socket.io")(http, { cors: {
-  origin: "http://localhost:4200",
-}});
+var io = require("socket.io")(http, {
+  cors: {
+    origin: "http://localhost:4200",
+  },
+});
 
 const session = require("express-session");
 
@@ -20,7 +21,11 @@ var currentAccount = {
   username: "",
   password: "",
 };
-var whitelist = ["http://localhost:3000", "http://localhost:4200", "http://localhost:3001"];
+var whitelist = [
+  "http://localhost:3000",
+  "http://localhost:4200",
+  "http://localhost:3001",
+];
 
 var corsOptions = {
   origin: function (origin, callback) {
@@ -33,33 +38,50 @@ var corsOptions = {
   credentials: true,
 };
 
-var pdfStatus = 0;
 
-io.on('connection', (socket) => {
-  console.log('A user connected');
+//var pdfStatus = 0;
+var pdfInfo = {
+  pdfStatus: 0,
+  pdfId: "",
+};
 
-  socket.emit('get-pdf-status', pdfStatus)
+io.on("connection", (socket) => {
+  console.log("A user connected");
 
-  socket.on('pdf-status', pobject => {
+  socket.emit("get-pdf-status", pdfInfo);
+
+  socket.on("pdf-status", (pobject) => {
     pdfStatus = pobject.status;
-    const pdf = {
+    pdfInfo = {
       pdfStatus,
-      filename: pobject.pdfId
-    }
+      pdfId: pobject.pdfId,
+    };
 
-    console.log(pdf)
+    console.log(pdfInfo);
     //socket.emit('pdf',pdf)
-    io.emit('pdf', pdf);
+    io.emit("pdf", pdfInfo);
 
     // io.emit('')
-  })
+  });
 
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
+  socket.on("allowance", (role) => {
+    // pdfStatus = pobject.status;
+    // const pdf = {
+    //   pdfStatus,
+    //   filename: pobject.pdfId,
+    // };
+
+    console.log(role);
+    //socket.emit('pdf',pdf)
+    io.emit("set-role", role);
+
+    // io.emit('')
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
   });
 });
-
-
 
 
 
@@ -92,22 +114,19 @@ app.post("/getInfor", function (req, res) {
   currentAccount.username = req.body.username;
   currentAccount.password = req.body.password;
   console.log("done " + req.body.username);
-  
+
   res.sendStatus(201);
 });
 
-app.get("/currentInfor", function (req,res){
+app.get("/currentInfor", function (req, res) {
   res.json({
-    username: currentAccount.username
-  })
+    username: currentAccount.username,
+  });
 });
 
 // this is the endpoint configured as API URL
 app.post("/sso", function (req, res) {
- 
- 
   console.log("sso: " + currentAccount.username);
-
 
   // otherwise create a rocket.chat session using rocket.chat's API
   axios
@@ -146,32 +165,32 @@ app.post("/login", function (req, res) {
       if (response.data.status === "success") {
         // since this endpoint is loaded within the iframe, we need to communicate back to rocket.chat using `postMessage` API
         res.set("Content-Type", "text/html");
-//         res.send(`
-        
-//         <!DOCTYPE html>
-// <html lang="en">
-// <head>
-//     <meta charset="UTF-8">
-//     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//     <title>Document</title>
-//     <style>
-//         iframe{
-//             height: 93vh !important
-//         }
-//     </style>
-// </head>
-// <body style="text-align: center;">
-//     <iframe src="http://localhost:3000/channel/general" title="myframe"></iframe>
-// </body>
-//         <script>
-//         document.querySelector('iframe').contentWindow.postMessage({
-//  event: 'login-with-token',
-//  loginToken: '${response.data.data.authToken}'
-//  }, '*');
-//  </script>
-//  </html>`);
-res.send(`
+        //         res.send(`
+
+        //         <!DOCTYPE html>
+        // <html lang="en">
+        // <head>
+        //     <meta charset="UTF-8">
+        //     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        //     <title>Document</title>
+        //     <style>
+        //         iframe{
+        //             height: 93vh !important
+        //         }
+        //     </style>
+        // </head>
+        // <body style="text-align: center;">
+        //     <iframe src="http://localhost:3000/channel/general" title="myframe"></iframe>
+        // </body>
+        //         <script>
+        //         document.querySelector('iframe').contentWindow.postMessage({
+        //  event: 'login-with-token',
+        //  loginToken: '${response.data.data.authToken}'
+        //  }, '*');
+        //  </script>
+        //  </html>`);
+        res.send(`
         
 <script>
 document.querySelector('iframe').contentWindow.postMessage({

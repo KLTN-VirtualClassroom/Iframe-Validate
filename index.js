@@ -106,7 +106,7 @@ app.post("/sso", function (req, res) {
   // otherwise create a rocket.chat session using rocket.chat's API
   axios
     //.post("http://localhost:3000/api/v1/login", currentAccount)
-    .post("http://115.78.232.219:3122/api/v1/login", currentAccount)
+    .post("http://115.78.232.219:3122/api/v1/login", {username: currentAccount.username, password: currentAccount.password})
     .then(function (response) {
       if (response.data.status === "success") {
         res.json({
@@ -137,7 +137,7 @@ app.post("/login", function (req, res) {
   console.log("user: " + currentAccount.username);
   axios
     //.post("http://localhost:3000/api/v1/login", currentAccount)
-    .post("http://115.78.232.219:3122/api/v1/login", currentAccount)
+    .post("http://115.78.232.219:3122/api/v1/login", {username: currentAccount.username, password: currentAccount.password})
     .then(function (response) {
       if (response.data.status === "success") {
         // since this endpoint is loaded within the iframe, we need to communicate back to rocket.chat using `postMessage` API

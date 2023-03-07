@@ -32,7 +32,7 @@
           io.emit("pdf", pdfInfo);
         });
       
-//-----------------------PERMISSION----------------
+        //------------PERMISSION----------------
         socket.on("allowance", (role) => {
           console.log(role);
           current_student_permission = role;

@@ -15,6 +15,7 @@ import session from "express-session";
 import mongoose from "mongoose";
 import UserModel from "./components/model/User.model.js";
 import UserRoute from "./components/User/User.route.js";
+import fileUpload from "express-fileupload"
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -87,7 +88,7 @@ app.post("/getInfor", async function (req, res) {
   });
   if (data) {
     currentAccount = data[0];
-    
+
     console.log(currentAccount);
     res.sendStatus(201);
   } else res.sendStatus(404);
@@ -106,7 +107,10 @@ app.post("/sso", function (req, res) {
   // otherwise create a rocket.chat session using rocket.chat's API
   axios
     //.post("http://localhost:3000/api/v1/login", currentAccount)
-    .post("http://115.78.232.219:3122/api/v1/login", {username: currentAccount.username, password: currentAccount.password})
+    .post("http://115.78.232.219:3122/api/v1/login", {
+      username: currentAccount.username,
+      password: currentAccount.password,
+    })
     .then(function (response) {
       if (response.data.status === "success") {
         res.json({
@@ -137,7 +141,10 @@ app.post("/login", function (req, res) {
   console.log("user: " + currentAccount.username);
   axios
     //.post("http://localhost:3000/api/v1/login", currentAccount)
-    .post("http://115.78.232.219:3122/api/v1/login", {username: currentAccount.username, password: currentAccount.password})
+    .post("http://115.78.232.219:3122/api/v1/login", {
+      username: currentAccount.username,
+      password: currentAccount.password,
+    })
     .then(function (response) {
       if (response.data.status === "success") {
         // since this endpoint is loaded within the iframe, we need to communicate back to rocket.chat using `postMessage` API
@@ -185,6 +192,27 @@ loginToken: '${response.data.data.authToken}'
 
 //===============route=============
 app.use("/user", UserRoute);
+
+app.post('/uploadPdf', fileUpload({createParentPath: true}), (req, res)=>{
+  const files =JSON.parse(JSON.stringify(req.files));
+  console.log(files.File.data);
+  axios
+    //.post("http://localhost:3000/api/v1/login", currentAccount)
+    .post("http://localhost:5000/api/documents", 
+      files.File.data.data
+    , {
+      headers:{
+        'Content-Type': "application/pdf",
+        'Authorization': "Token token=\"secret\""
+      }
+    })
+    .then(function (response) {
+      console.log(response)
+    })
+    .catch(function (e) {
+      console.log(e)
+    });
+})
 
 //========MONGOOSE==========
 mongoose.set("strictQuery", false);

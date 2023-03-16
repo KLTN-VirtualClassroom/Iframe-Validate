@@ -25,6 +25,7 @@ var currentAccount = {
   password: "",
   role: "",
   roomId: "",
+  id: ""
 };
 
 var whitelist = corsData;
@@ -86,7 +87,7 @@ app.post("/getInfor", async function (req, res) {
     username: currentAccount.username,
     password: currentAccount.password,
   });
-  if (data) {
+  if (data[0]?.username) {
     currentAccount = data[0];
 
     console.log(currentAccount);

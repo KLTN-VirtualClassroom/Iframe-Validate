@@ -85,7 +85,7 @@ app.post("/getInfor", async function (req, res) {
   currentAccount.password = req.body.password;
   const data = await UserModel.find({
     username: currentAccount.username,
-    password: currentAccount.password,
+    //password: currentAccount.password,
   });
   if (data[0]?.username) {
     currentAccount = data[0];

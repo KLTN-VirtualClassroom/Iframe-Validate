@@ -8,5 +8,6 @@ export const corsData = [
   "http://18.139.222.211",
   "http://localhost:8001",
   "http://115.78.232.219:5013",
+  "http://115.78.232.219:5021",
   "*"
 ];

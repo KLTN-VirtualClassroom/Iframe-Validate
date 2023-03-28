@@ -16,6 +16,7 @@ import mongoose from "mongoose";
 import UserModel from "./components/model/User.model.js";
 import UserRoute from "./components/User/User.route.js";
 import fileUpload from "express-fileupload"
+import MaterialRoute from "./components/Material/Material.route.js";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -193,6 +194,7 @@ loginToken: '${response.data.data.authToken}'
 
 //===============route=============
 app.use("/user", UserRoute);
+app.use("/material", MaterialRoute);
 
 app.post('/uploadPdf', fileUpload({createParentPath: true}), (req, res)=>{
   const files =JSON.parse(JSON.stringify(req.files));

@@ -15,18 +15,24 @@ import session from "express-session";
 import mongoose from "mongoose";
 import UserModel from "./components/model/User.model.js";
 import UserRoute from "./components/User/User.route.js";
-import fileUpload from "express-fileupload"
+//import fileUpload from "express-fileupload"
 import MaterialRoute from "./components/Material/Material.route.js";
+import FormData from "form-data";
+import multer from "multer";
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(express.json({limit: '50mb'}))
+// app.use(express.urlencoded({limit: '50mb'}))
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+const upload = multer({ dest: "uploads/" });
 
 var currentAccount = {
   username: "",
   password: "",
   role: "",
   roomId: "",
-  id: ""
+  id: "",
 };
 
 var whitelist = corsData;
@@ -196,26 +202,32 @@ loginToken: '${response.data.data.authToken}'
 app.use("/user", UserRoute);
 app.use("/material", MaterialRoute);
 
-app.post('/uploadPdf', fileUpload({createParentPath: true}), (req, res)=>{
-  const files =JSON.parse(JSON.stringify(req.files));
-  console.log(files.File.data);
-  axios
-    //.post("http://localhost:3000/api/v1/login", currentAccount)
-    .post("http://localhost:5000/api/documents", 
-      files.File.data.data
-    , {
-      headers:{
-        'Content-Type': "application/pdf",
-        'Authorization': "Token token=\"secret\""
-      }
-    })
+//app.post('/uploadPdf', fileUpload({createParentPath: true}), upload.single('file'), (req, res)=>{
+app.post("/uploadPdf", upload.single("file"), (req, res) => {
+  const files = req.files;
+  // let formData = new FormData();
+  // formData.append('File', files)
+  console.log(req.file.filename);
+  const data = fs.readFileSync(`./uploads/${req.file.filename}`);
+
+  axios({
+    method: "post",
+    url: "https://bangtrang.click/api/documents",
+    data: data,
+    headers: {
+      "Content-Type": "application/pdf",
+      Authorization: "Token token=secret",
+    },
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+  })
     .then(function (response) {
-      console.log(response)
+      console.log(response);
     })
     .catch(function (e) {
-      console.log(e)
+      console.log(e.message);
     });
-})
+});
 
 //========MONGOOSE==========
 mongoose.set("strictQuery", false);

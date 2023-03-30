@@ -7,7 +7,7 @@ const router = new Router();
 router.route('/getPersonalMaterial').get(MaterialController.getPersonalMaterial);
 router.route('/getTopicMaterial').get(MaterialController.getTopicMaterial);
 
-// router.route('/post').post(MaterialController.getListMaterial);
+router.route('/uploadMaterial').post(MaterialController.uploadMaterial);
 
 
 

@@ -19,14 +19,24 @@ import UserRoute from "./components/User/User.route.js";
 import MaterialRoute from "./components/Material/Material.route.js";
 import FormData from "form-data";
 import multer from "multer";
+import * as MaterialService from "./components/Material/Material.service.js";
 // app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(express.json({limit: '50mb'}))
 // app.use(express.urlencoded({limit: '50mb'}))
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
 
-const upload = multer({ dest: "uploads/" });
+//const upload = multer({ dest: "uploads/" });
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
 
+var upload = multer({ storage: storage });
 var currentAccount = {
   username: "",
   password: "",
@@ -202,13 +212,11 @@ loginToken: '${response.data.data.authToken}'
 app.use("/user", UserRoute);
 app.use("/material", MaterialRoute);
 
-//app.post('/uploadPdf', fileUpload({createParentPath: true}), upload.single('file'), (req, res)=>{
-app.post("/uploadPdf", upload.single("file"), (req, res) => {
-  const files = req.files;
-  // let formData = new FormData();
-  // formData.append('File', files)
-  console.log(req.file.filename);
-  const data = fs.readFileSync(`./uploads/${req.file.filename}`);
+//================Upload PDF===================
+app.post("/uploadPdf", upload.single("file"), async function(req, res) {
+  const teacherID = req.query.teacherID;
+  let fileName = req.file.filename
+  const data = fs.readFileSync(`./uploads/${fileName}`);
 
   axios({
     method: "post",
@@ -221,11 +229,22 @@ app.post("/uploadPdf", upload.single("file"), (req, res) => {
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
   })
-    .then(function (response) {
-      console.log(response);
+    .then(async function (response) {
+      const fileInfo = response.data.data;
+      const fileTitle = fileName.split(".")[0];
+      const fileUploaded = {
+        fileId: fileInfo.document_id,
+        fileName: fileTitle,
+        teacherID,
+        topic: "personal",
+      };
+
+      const payload = await MaterialService.uploadMaterial(fileUploaded)
+      res.json(payload);
     })
     .catch(function (e) {
       console.log(e.message);
+      res.sendStatus(400);
     });
 });
 

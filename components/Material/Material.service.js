@@ -18,18 +18,9 @@ export async function getTopicMaterial(){
 }
 
 export async function uploadMaterial(data){
-     axios
-      .post("https://bangtrang.click/api/documents", data, {
-        headers: {
-          'Content-Type': "application/pdf",
-          Authorization: "Token token=secret",
-        },
-      }).then(function (response) {
-         //console.log(response)
-          return {status: "success"};
-      }) .catch(function (error) {
-        //console.log()
-
-        return {status: 'upload failed'}
-      });
+  try {
+    return await MaterialModel.create(data);
+  } catch (error) {
+    throw new APIError(500, error.message);
+  }
 }

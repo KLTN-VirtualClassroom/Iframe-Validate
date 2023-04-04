@@ -9,5 +9,10 @@ export const corsData = [
   "http://localhost:8001",
   "http://115.78.232.219:5013",
   "http://115.78.232.219:5021",
+  "https://chatvirtual.click",
+  "https://servervirtual.click",
+  "https://pdfui.click",
+  "https://pdfserver.click",
+  "https://video.lettutor.com",
   "*"
 ];

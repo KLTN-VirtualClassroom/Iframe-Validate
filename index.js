@@ -125,7 +125,7 @@ app.post("/sso", function (req, res) {
   // otherwise create a rocket.chat session using rocket.chat's API
   axios
     //.post("http://localhost:3000/api/v1/login", currentAccount)
-    .post("http://115.78.232.219:3122/api/v1/login", {
+    .post("https://chatvirtual.click/api/v1/login", {
       username: currentAccount.username,
       password: currentAccount.password,
     })
@@ -159,7 +159,7 @@ app.post("/login", function (req, res) {
   console.log("user: " + currentAccount.username);
   axios
     //.post("http://localhost:3000/api/v1/login", currentAccount)
-    .post("http://115.78.232.219:3122/api/v1/login", {
+    .post("https://chatvirtual.click/api/v1/login", {
       username: currentAccount.username,
       password: currentAccount.password,
     })
@@ -220,7 +220,7 @@ app.post("/uploadPdf", upload.single("file"), async function(req, res) {
 
   axios({
     method: "post",
-    url: "https://bangtrang.click/api/documents",
+    url: "https://servervirtual.click/api/documents",
     data: data,
     headers: {
       "Content-Type": "application/pdf",

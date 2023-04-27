@@ -220,7 +220,7 @@ app.post("/uploadPdf", upload.single("file"), async function(req, res) {
 
   axios({
     method: "post",
-    url: "https://servervirtual.click/api/documents",
+    url: "https://pdfserver.kltnvirtualclassroom.online//api/documents",
     data: data,
     headers: {
       "Content-Type": "application/pdf",

@@ -12,4 +12,8 @@ export const socketData = [
     "https://pdfui.click",
     "https://pdfserver.click",
     "https://video.lettutor.com",
+    "https://servervirtual.kltnvirtualclassroom.online",
+    "https://pdfui.kltnvirtualclassroom.online",
+    "https://pdfserver.kltnvirtualclassroom.online",
+    "https://video.kltnvirtualclassroom.online",
   ];

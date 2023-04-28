@@ -16,4 +16,5 @@ export const socketData = [
     "https://pdfui.kltnvirtualclassroom.online",
     "https://pdfserver.kltnvirtualclassroom.online",
     "https://video.kltnvirtualclassroom.online",
+    "https://vcui.kltnvirtualclassroom.online"
   ];

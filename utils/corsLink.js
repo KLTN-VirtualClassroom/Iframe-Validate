@@ -9,7 +9,7 @@ export const corsData = [
   // "http://localhost:8001",
   // "http://115.78.232.219:5013",
   // "http://115.78.232.219:5021",
-  // "https://chatvirtual.click",
+  "https://chatvirtual.click",
   "https://servervirtual.kltnvirtualclassroom.online",
   "https://pdfui.kltnvirtualclassroom.online",
   "https://pdfserver.kltnvirtualclassroom.online",

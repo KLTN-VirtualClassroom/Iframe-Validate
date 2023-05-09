@@ -107,7 +107,7 @@ app.post("/getInfor", async function (req, res) {
   if (data[0]?.username) {
     currentAccount = data[0];
 
-    console.log(currentAccount);
+    //console.log(currentAccount);
     axios.post("https://chatvirtual.click/api/v1/login", {
       username: currentAccount.username,
       password: currentAccount.password,
@@ -117,6 +117,7 @@ app.post("/getInfor", async function (req, res) {
 });
 
 app.get("/currentInfor", function (req, res) {
+  console.log(currentAccount);
   res.json(currentAccount);
 });
 
@@ -203,8 +204,7 @@ document.querySelector('iframe').contentWindow.postMessage({
 event: 'login-with-token',
 loginToken: '${response.data.data.authToken}'
 }, '*');
-</script>
-</html>`);
+</script>`);
       }
     })
     .catch(function () {

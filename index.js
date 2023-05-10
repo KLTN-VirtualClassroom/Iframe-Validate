@@ -98,14 +98,22 @@ app.use(
 // });
 
 app.post("/getInfor", async function (req, res) {
-  currentAccount.username = req.body.username;
-  currentAccount.password = req.body.password;
-  const data = await UserModel.find({
-    username: currentAccount.username,
+  // currentAccount.username = req.body.username;
+  // currentAccount.password = req.body.password;
+  const roomId = req.body.roomId
+  let role = req.body.role;
+  if (role === "tutor") role = "teacher";
+
+  const data = await UserModel.findOne({
+    username: req.body.username
     //password: currentAccount.password,
   });
-  if (data[0]?.username) {
-    currentAccount = data[0];
+  console.log(roomId + role)
+  if (data) {
+    currentAccount = data;
+    currentAccount.roomId = roomId;
+    currentAccount.role = role;
+    if (currentAccount.role === "tutor") currentAccount.role = "teacher";
 
     //console.log(currentAccount);
     axios.post("https://chatvirtual.click/api/v1/login", {
@@ -113,7 +121,7 @@ app.post("/getInfor", async function (req, res) {
       password: currentAccount.password,
     });
     res.sendStatus(201);
-  } else res.sendStatus(404);
+  } else {console.log("DeoCO") ; res.sendStatus(404);}
 });
 
 app.get("/currentInfor", function (req, res) {
@@ -129,7 +137,6 @@ app.post("/sso", function (req, res) {
 
   // otherwise create a rocket.chat session using rocket.chat's API
   axios
-    //.post("http://localhost:3000/api/v1/login", currentAccount)
     .post("https://chatvirtual.click/api/v1/login", {
       username: currentAccount.username,
       password: currentAccount.password,
@@ -163,7 +170,6 @@ app.post("/login", function (req, res) {
   // currentAccount.password = req.body.password;
   console.log("user: " + currentAccount.username);
   axios
-    //.post("http://localhost:3000/api/v1/login", currentAccount)
     .post("https://chatvirtual.click/api/v1/login", {
       username: currentAccount.username,
       password: currentAccount.password,
@@ -171,7 +177,6 @@ app.post("/login", function (req, res) {
     .then(function (response) {
       if (response.data.status === "success") {
         // since this endpoint is loaded within the iframe, we need to communicate back to rocket.chat using `postMessage` API
-        res.set("Content-Type", "text/html");
         //         res.send(`
 
         //         <!DOCTYPE html>
@@ -197,14 +202,18 @@ app.post("/login", function (req, res) {
         //  }, '*');
         //  </script>
         //  </html>`);
-        res.send(`
-        
-<script>
-document.querySelector('iframe').contentWindow.postMessage({
-event: 'login-with-token',
-loginToken: '${response.data.data.authToken}'
-}, '*');
-</script>`);
+
+        //------------
+        //         res.set("Content-Type", "text/html");
+        //         res.send(`
+
+        // <script>
+        // document.querySelector('iframe').contentWindow.postMessage({
+        // event: 'login-with-token',
+        // loginToken: '${response.data.data.authToken}'
+        // }, '*');
+        // </script>`);
+        res.sendStatus(200);
       }
     })
     .catch(function () {

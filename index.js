@@ -121,12 +121,20 @@ app.post("/getInfor", async function (req, res) {
 
     if (currentAccount.role === "tutor") currentAccount.role = "teacher";
     //console.log(currentAccount);
-    axios.post("https://chatvirtual.click/api/v1/login", {
-      username: currentAccount.username,
-      password: currentAccount.password,
-    });
-    res.sendStatus(201);
-  } else {console.log("No Account Found") ; res.sendStatus(404);}
+    axios
+      .post("https://chatvirtual.click/api/v1/login", {
+        username: currentAccount.username,
+        password: currentAccount.password,
+      })
+      .then(function (response) {
+        if (response.data.status === "success") {
+          res.sendStatus(200);
+        }
+      })
+      .catch(function () {
+        res.sendStatus(401);
+      });
+  }
 });
 
 app.get("/currentInfor", function (req, res) {

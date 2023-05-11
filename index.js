@@ -37,12 +37,13 @@ var storage = multer.diskStorage({
 });
 
 var upload = multer({ storage: storage });
-var currentAccount = {
+let currentAccount = {
   username: "",
   password: "",
   role: "",
   roomId: "",
   id: "",
+  authToken: ""
 };
 
 var whitelist = corsData;
@@ -57,6 +58,8 @@ var corsOptions = {
   },
   credentials: true,
 };
+
+var authToken = "";
 
 var pdfInfo = {
   pdfStatus: 0,
@@ -115,7 +118,9 @@ app.post("/getInfor", async function (req, res) {
   // res.sendStatus(201);
 
   if (data) {
-    currentAccount = data;
+    currentAccount.username = data.username;
+    currentAccount.password = data.password;
+    currentAccount.id = data.id;
     currentAccount.roomId = roomId;
     currentAccount.role = role;
 
@@ -128,6 +133,10 @@ app.post("/getInfor", async function (req, res) {
       })
       .then(function (response) {
         if (response.data.status === "success") {
+          currentAccount.authToken = response.data.data.authToken
+          //currentAccount= {...currentAccount, authToken: response.data.data.authToken}
+          console.log(currentAccount)
+
           res.sendStatus(200);
         }
       })

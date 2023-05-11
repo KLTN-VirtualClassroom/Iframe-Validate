@@ -100,32 +100,37 @@ app.use(
 app.post("/getInfor", async function (req, res) {
   // currentAccount.username = req.body.username;
   // currentAccount.password = req.body.password;
-  const roomId = req.body.roomId
+  const roomId = req.body.roomId;
   let role = req.body.role;
   if (role === "tutor") role = "teacher";
 
   const data = await UserModel.findOne({
-    username: req.body.username
+    username: req.body.username,
     //password: currentAccount.password,
   });
-  console.log(roomId + role)
+
+  // currentAccount = data;
+  // currentAccount.roomId = roomId;
+  // currentAccount.role = role;
+  // res.sendStatus(201);
+
   if (data) {
     currentAccount = data;
     currentAccount.roomId = roomId;
     currentAccount.role = role;
-    if (currentAccount.role === "tutor") currentAccount.role = "teacher";
 
+    if (currentAccount.role === "tutor") currentAccount.role = "teacher";
     //console.log(currentAccount);
     axios.post("https://chatvirtual.click/api/v1/login", {
       username: currentAccount.username,
       password: currentAccount.password,
     });
     res.sendStatus(201);
-  } else {console.log("DeoCO") ; res.sendStatus(404);}
+  } else {console.log("No Account Found") ; res.sendStatus(404);}
 });
 
 app.get("/currentInfor", function (req, res) {
-  console.log(currentAccount);
+  //console.log(currentAccount);
   res.json(currentAccount);
 });
 

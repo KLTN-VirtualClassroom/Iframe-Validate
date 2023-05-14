@@ -137,7 +137,8 @@ app.post("/getInfor", async function (req, res) {
           //currentAccount= {...currentAccount, authToken: response.data.data.authToken}
           console.log(currentAccount)
 
-          res.sendStatus(200);
+          //res.sendStatus(200);
+          res.json(currentAccount)
         }
       })
       .catch(function () {

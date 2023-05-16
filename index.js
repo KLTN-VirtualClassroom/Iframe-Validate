@@ -127,7 +127,7 @@ app.post("/getInfor", async function (req, res) {
     if (currentAccount.role === "tutor") currentAccount.role = "teacher";
     //console.log(currentAccount);
     axios
-      .post("https://chatvirtual.click/api/v1/login", {
+      .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
         username: currentAccount.username,
         password: currentAccount.password,
       })
@@ -256,7 +256,7 @@ app.post("/uploadPdf", upload.single("file"), async function (req, res) {
 
   axios({
     method: "post",
-    url: "https://pdfserver.kltnvirtualclassroom.online//api/documents",
+    url: "https://pdfserver.kltnvirtualclassroom.online/api/documents",
     data: data,
     headers: {
       "Content-Type": "application/pdf",

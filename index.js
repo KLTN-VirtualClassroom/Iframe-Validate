@@ -252,7 +252,7 @@ app.use("/material", MaterialRoute);
 app.post("/uploadPdf", upload.single("file"), async function (req, res) {
   const teacherID = req.query.teacherID;
   let fileName = req.file.filename;
-  const data = fs.readFileSync(`./uploads/${fileName}`);
+  const data = fs.readFileSync(`uploads/${fileName}`);
 
   axios({
     method: "post",

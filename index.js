@@ -20,6 +20,11 @@ import MaterialRoute from "./components/Material/Material.route.js";
 import FormData from "form-data";
 import multer from "multer";
 import * as MaterialService from "./components/Material/Material.service.js";
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 // app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(express.json({limit: '50mb'}))
 // app.use(express.urlencoded({limit: '50mb'}))
@@ -252,7 +257,7 @@ app.use("/material", MaterialRoute);
 app.post("/uploadPdf", upload.single("file"), async function (req, res) {
   const teacherID = req.query.teacherID;
   let fileName = req.file.filename;
-  const data = fs.readFileSync(`uploads/${fileName}`);
+  const data = fs.readFileSync(`${__dirname}/uploads/${fileName}`);
 
   axios({
     method: "post",

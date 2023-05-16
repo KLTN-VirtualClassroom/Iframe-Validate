@@ -135,7 +135,7 @@ app.post("/getInfor", async function (req, res) {
         if (response.data.status === "success") {
           currentAccount.authToken = response.data.data.authToken
           //currentAccount= {...currentAccount, authToken: response.data.data.authToken}
-          console.log(currentAccount)
+          //console.log(currentAccount)
 
           //res.sendStatus(200);
           res.json(currentAccount)
@@ -276,6 +276,7 @@ app.post("/uploadPdf", upload.single("file"), async function (req, res) {
       };
 
       const payload = await MaterialService.uploadMaterial(fileUploaded);
+      fs.unlinkSync(`./uploads/${fileName}`);
       res.json(payload);
     })
     .catch(function (e) {

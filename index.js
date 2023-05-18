@@ -17,12 +17,14 @@ import UserModel from "./components/model/User.model.js";
 import UserRoute from "./components/User/User.route.js";
 //import fileUpload from "express-fileupload"
 import MaterialRoute from "./components/Material/Material.route.js";
+import TopicRoute from "./components/Topic/Topic.route.js";
+import CourseRoute from "./components/Course/Course.route.js";
 import FormData from "form-data";
 import multer from "multer";
 import * as MaterialService from "./components/Material/Material.service.js";
 
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // app.use(bodyParser.urlencoded({ extended: false }));
@@ -48,7 +50,7 @@ let currentAccount = {
   role: "",
   roomId: "",
   id: "",
-  authToken: ""
+  authToken: "",
 };
 
 var whitelist = corsData;
@@ -64,19 +66,19 @@ var corsOptions = {
   credentials: true,
 };
 
-var authToken = "";
 
-var pdfInfo = {
-  pdfStatus: 0,
-  pdfId: "",
-};
+// var authToken = "";
+// var pdfInfo = {
+//   pdfStatus: 0,
+//   pdfId: "",
+// };
+// var current_student_permission = "";
+// var zoom_pdf = 1;
+// var scroll_position = {
+//   ratioX: null,
+//   ratioY: null,
+// };
 
-var current_student_permission = "";
-var zoom_pdf = 1;
-var scroll_position = {
-  ratioX: null,
-  ratioY: null,
-};
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Private-Network", "true");
@@ -138,12 +140,12 @@ app.post("/getInfor", async function (req, res) {
       })
       .then(function (response) {
         if (response.data.status === "success") {
-          currentAccount.authToken = response.data.data.authToken
+          currentAccount.authToken = response.data.data.authToken;
           //currentAccount= {...currentAccount, authToken: response.data.data.authToken}
           //console.log(currentAccount)
 
           //res.sendStatus(200);
-          res.json(currentAccount)
+          res.json(currentAccount);
         }
       })
       .catch(function () {
@@ -252,6 +254,8 @@ app.post("/login", function (req, res) {
 //===============route=============
 app.use("/user", UserRoute);
 app.use("/material", MaterialRoute);
+app.use("/topic", TopicRoute);
+app.use("/course", CourseRoute)
 
 //================Upload PDF===================
 app.post("/uploadPdf", upload.single("file"), async function (req, res) {

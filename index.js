@@ -44,14 +44,6 @@ var storage = multer.diskStorage({
 });
 
 var upload = multer({ storage: storage });
-let currentAccount = {
-  username: "",
-  password: "",
-  role: "",
-  roomId: "",
-  id: "",
-  authToken: "",
-};
 
 var whitelist = corsData;
 
@@ -66,7 +58,6 @@ var corsOptions = {
   credentials: true,
 };
 
-
 // var authToken = "";
 // var pdfInfo = {
 //   pdfStatus: 0,
@@ -79,12 +70,13 @@ var corsOptions = {
 //   ratioY: null,
 // };
 
-
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Private-Network", "true");
   res.setHeader("Access-Control-Request-Private-Network", "true");
   next();
 });
+
+const getAuthInfo = app.use((req, res, next) => {next()});
 
 app.use(cors(corsOptions));
 app.set("trust proxy", 1); // trust first proxy
@@ -108,50 +100,145 @@ app.use(
 // });
 
 app.post("/getInfor", async function (req, res) {
-  // currentAccount.username = req.body.username;
-  // currentAccount.password = req.body.password;
+  console.log("hello");
+
+  let currentAccount = {
+    username: "",
+    password: "",
+    role: "",
+    roomId: "",
+    id: "",
+    authToken: "",
+  };
+
+  let authTokenAdmin = "";
+  let userIdAdmin = "";
+
   const roomId = req.body.roomId;
   let role = req.body.role;
   if (role === "tutor") role = "teacher";
 
-  const data = await UserModel.findOne({
-    username: req.body.username,
-    //password: currentAccount.password,
-  });
+  currentAccount.username = req.body.username;
+  currentAccount.password = "12345678";
+  currentAccount.roomId = roomId;
+  currentAccount.role = role;
 
-  // currentAccount = data;
-  // currentAccount.roomId = roomId;
-  // currentAccount.role = role;
-  // res.sendStatus(201);
+  if (currentAccount.role === "tutor") currentAccount.role = "teacher";
 
-  if (data) {
-    currentAccount.username = data.username;
-    currentAccount.password = data.password;
-    currentAccount.id = data.id;
-    currentAccount.roomId = roomId;
-    currentAccount.role = role;
+  await axios
+    .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
+      username: "nghianguyen",
+      password: "12345678",
+    })
+    .then(async function (responseMain) {
+      authTokenAdmin = responseMain.data.data.authToken;
+      userIdAdmin = responseMain.data.data.userId;
+      console.log(userIdAdmin);
+  // })
+  // .catch(function () {
+  //   res.sendStatus(401);
+  // });
 
-    if (currentAccount.role === "tutor") currentAccount.role = "teacher";
-    //console.log(currentAccount);
-    axios
-      .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
-        username: currentAccount.username,
-        password: currentAccount.password,
-      })
-      .then(function (response) {
-        if (response.data.status === "success") {
-          currentAccount.authToken = response.data.data.authToken;
-          //currentAccount= {...currentAccount, authToken: response.data.data.authToken}
-          //console.log(currentAccount)
+  // ===================================== Check user exsit =========================================
 
-          //res.sendStatus(200);
-          res.json(currentAccount);
-        }
-      })
-      .catch(function () {
-        res.sendStatus(401);
+  await axios
+    .get(`https://chat.kltnvirtualclassroom.online/api/v1/users.list`, {
+      headers: {
+        "X-Auth-Token": authTokenAdmin,
+        "X-User-Id": userIdAdmin,
+      },
+    })
+    .then(async function (response) {
+      const data = response.data.users.find((element) => {
+        if (element.username === currentAccount.username) return true;
+        return false;
       });
-  }
+      if (data) {
+        await axios
+          .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
+            username: currentAccount.username,
+            password: currentAccount.password,
+          })
+          .then(async function (response) {
+            if (response.data.status === "success") {
+              currentAccount.authToken = response.data.data.authToken;
+              currentAccount.id = response.data.data.userId;
+              res.json(currentAccount);
+            }
+          });
+      } else {
+        await axios
+          .post(
+            "https://chat.kltnvirtualclassroom.online/api/v1/users.register",
+            {
+              username: currentAccount.username,
+              pass: currentAccount.password,
+              name: currentAccount.username,
+              email: "lol1olo@gmail.com",
+            }
+          )
+          .then(async function (response) {
+            await axios
+              .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
+                username: currentAccount.username,
+                password: currentAccount.password,
+              })
+              .then(async function (response) {
+                if (response.data.status === "success") {
+                  currentAccount.authToken = response.data.data.authToken;
+                  currentAccount.id = response.data.data.userId;
+                  res.json(currentAccount);
+                }
+              });
+          });
+      }
+    })
+    .catch(function () {
+      console.log("user FAIL")
+      res.sendStatus(401);
+    });
+
+  //=========================================== Check room exist ======================================
+  await axios
+    .get(`https://chat.kltnvirtualclassroom.online/api/v1/channels.list`, {
+      headers: {
+        "X-Auth-Token": authTokenAdmin,
+        "X-User-Id": userIdAdmin,
+      },
+    })
+    .then(async function (response) {
+      const data = response.data.channels.find((element) => {
+        if (element.fname === currentAccount.roomId) return true;
+        return false;
+      });
+      if (!data) {
+        await axios
+          .post(
+            "https://chat.kltnvirtualclassroom.online/api/v1/channels.create",
+            {
+              name: currentAccount.roomId,
+            },
+            {
+              headers: {
+                "X-Auth-Token": authTokenAdmin,
+                "X-User-Id": userIdAdmin,
+              },
+            }
+          )
+          .then(async function (response) {
+            console.log(response.data);
+          });
+      }
+    })
+    .catch(function () {
+      console.log("channel FAIL")
+      res.sendStatus(401);
+    });
+  })
+  .catch(function () {
+    console.log("AUTH FAIL")
+    res.sendStatus(401);
+  });
 });
 
 app.get("/currentInfor", function (req, res) {
@@ -255,7 +342,7 @@ app.post("/login", function (req, res) {
 app.use("/user", UserRoute);
 app.use("/material", MaterialRoute);
 app.use("/topic", TopicRoute);
-app.use("/course", CourseRoute)
+app.use("/course", CourseRoute);
 
 //================Upload PDF===================
 app.post("/uploadPdf", upload.single("file"), async function (req, res) {

@@ -118,7 +118,7 @@ app.post("/getInfor", async function (req, res) {
   let role = req.body.role;
   if (role === "tutor") role = "teacher";
 
-  currentAccount.username = req.body.username;
+  currentAccount.username = req.body.username.replaceAll("%20", "");
   currentAccount.password = "12345678";
   currentAccount.roomId = roomId;
   currentAccount.role = role;
@@ -134,10 +134,6 @@ app.post("/getInfor", async function (req, res) {
       authTokenAdmin = responseMain.data.data.authToken;
       userIdAdmin = responseMain.data.data.userId;
       console.log(userIdAdmin);
-  // })
-  // .catch(function () {
-  //   res.sendStatus(401);
-  // });
 
   // ===================================== Check user exsit =========================================
 
@@ -174,7 +170,7 @@ app.post("/getInfor", async function (req, res) {
               username: currentAccount.username,
               pass: currentAccount.password,
               name: currentAccount.username,
-              email: "lol1olo@gmail.com",
+              email: "loql1olo@gmail.com",
             }
           )
           .then(async function (response) {

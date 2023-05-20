@@ -105,6 +105,7 @@ app.post("/getInfor", async function (req, res) {
   let currentAccount = {
     username: "",
     password: "",
+    email: "",
     role: "",
     roomId: "",
     id: "",
@@ -114,14 +115,12 @@ app.post("/getInfor", async function (req, res) {
   let authTokenAdmin = "";
   let userIdAdmin = "";
 
-  const roomId = req.body.roomId;
-  let role = req.body.role;
-  if (role === "tutor") role = "teacher";
 
   currentAccount.username = req.body.username.replaceAll("%20", "");
   currentAccount.password = "12345678";
-  currentAccount.roomId = roomId;
-  currentAccount.role = role;
+  currentAccount.roomId = req.body.roomId;
+  currentAccount.role = req.body.role;
+  currentAccount.email = req.body.email;
 
   if (currentAccount.role === "tutor") currentAccount.role = "teacher";
 
@@ -170,7 +169,7 @@ app.post("/getInfor", async function (req, res) {
               username: currentAccount.username,
               pass: currentAccount.password,
               name: currentAccount.username,
-              email: "loql1olo@gmail.com",
+              email: currentAccount.email,
             }
           )
           .then(async function (response) {
@@ -191,7 +190,7 @@ app.post("/getInfor", async function (req, res) {
     })
     .catch(function () {
       console.log("user FAIL")
-      res.sendStatus(401);
+      //res.sendStatus(401);
     });
 
   //=========================================== Check room exist ======================================
@@ -228,12 +227,12 @@ app.post("/getInfor", async function (req, res) {
     })
     .catch(function () {
       console.log("channel FAIL")
-      res.sendStatus(401);
+      //res.sendStatus(401);
     });
   })
   .catch(function () {
     console.log("AUTH FAIL")
-    res.sendStatus(401);
+    //res.sendStatus(401);
   });
 });
 
@@ -262,7 +261,7 @@ app.post("/sso", function (req, res) {
       }
     })
     .catch(function () {
-      res.sendStatus(401);
+      //res.sendStatus(401);
     });
 });
 

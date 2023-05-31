@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
-import fs from "fs";
+import fs, { lutimes } from "fs";
 import * as dotenv from "dotenv";
 dotenv.config();
 const app = express();
@@ -15,7 +15,6 @@ import session from "express-session";
 import mongoose from "mongoose";
 import UserModel from "./components/model/User.model.js";
 import UserRoute from "./components/User/User.route.js";
-//import fileUpload from "express-fileupload"
 import MaterialRoute from "./components/Material/Material.route.js";
 import TopicRoute from "./components/Topic/Topic.route.js";
 import CourseRoute from "./components/Course/Course.route.js";
@@ -27,9 +26,6 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(express.json({limit: '50mb'}))
-// app.use(express.urlencoded({limit: '50mb'}))
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
 
@@ -58,25 +54,15 @@ var corsOptions = {
   credentials: true,
 };
 
-// var authToken = "";
-// var pdfInfo = {
-//   pdfStatus: 0,
-//   pdfId: "",
-// };
-// var current_student_permission = "";
-// var zoom_pdf = 1;
-// var scroll_position = {
-//   ratioX: null,
-//   ratioY: null,
-// };
-
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Private-Network", "true");
   res.setHeader("Access-Control-Request-Private-Network", "true");
   next();
 });
 
-const getAuthInfo = app.use((req, res, next) => {next()});
+const getAuthInfo = app.use((req, res, next) => {
+  next();
+});
 
 app.use(cors(corsOptions));
 app.set("trust proxy", 1); // trust first proxy
@@ -92,16 +78,20 @@ app.use(
   })
 );
 
-// app.use((req, res, next) => {
-//   res.set("Access-Control-Allow-Origin", "http://localhost:3000"); // this is the rocket.chat URL
-//   res.set("Access-Control-Allow-Credentials", "true");
+var searchUsername = function (arr) {
+  var returnValue = false;
 
-//   next();
-// });
+  for (var i = 0; i <= arr.length; i++) {
+    if (arr[i].name === "john") {
+      ret = true;
+      break;
+    }
+  }
+
+  return returnValue;
+};
 
 app.post("/getInfor", async function (req, res) {
-  console.log("hello");
-
   let currentAccount = {
     username: "",
     password: "",
@@ -114,7 +104,6 @@ app.post("/getInfor", async function (req, res) {
 
   let authTokenAdmin = "";
   let userIdAdmin = "";
-
 
   currentAccount.username = req.body.username.replaceAll("%20", "");
   currentAccount.password = "12345678";
@@ -132,108 +121,238 @@ app.post("/getInfor", async function (req, res) {
     .then(async function (responseMain) {
       authTokenAdmin = responseMain.data.data.authToken;
       userIdAdmin = responseMain.data.data.userId;
-      console.log(userIdAdmin);
 
-  // ===================================== Check user exsit =========================================
+      // ===================================== Check user exsit =========================================
 
-  await axios
-    .get(`https://chat.kltnvirtualclassroom.online/api/v1/users.list`, {
-      headers: {
-        "X-Auth-Token": authTokenAdmin,
-        "X-User-Id": userIdAdmin,
-      },
-    })
-    .then(async function (response) {
-      const data = response.data.users.find((element) => {
-        if (element.username === currentAccount.username) return true;
-        return false;
-      });
-      if (data) {
-        await axios
-          .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
-            username: currentAccount.username,
-            password: currentAccount.password,
-          })
-          .then(async function (response) {
-            if (response.data.status === "success") {
-              currentAccount.authToken = response.data.data.authToken;
-              currentAccount.id = response.data.data.userId;
-              res.json(currentAccount);
+      await axios
+        .get(`https://chat.kltnvirtualclassroom.online/api/v1/users.list`, {
+          headers: {
+            "X-Auth-Token": authTokenAdmin,
+            "X-User-Id": userIdAdmin,
+          },
+        })
+        .then(async function (response) {
+          const listUser = response.data.users;
+          let dataCheck = null;
+
+          //async function checkUser() {
+          for (let i = 0; i < listUser.length; i++) {
+            //console.log(listUser[i].username);
+
+            if (listUser[i].username === currentAccount.username) {
+              //console.log(listUser[i].username);
+              await axios
+                .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
+                  username: currentAccount.username,
+                  password: currentAccount.password,
+                })
+                .then(async function (response) {
+                  if (response.data.status === "success") {
+                    currentAccount.authToken = response.data.data.authToken;
+                    currentAccount.id = response.data.data.userId;
+                    res.json(currentAccount);
+                  }
+                });
+              break;
             }
+
+            if (listUser[i].emails[0].address === currentAccount.email) {
+              //console.log("Checking email " + listUser[i].emails[0].address);
+              await axios
+                .post(
+                  `https://chat.kltnvirtualclassroom.online/api/v1/users.update`,
+                  {
+                    userId: listUser[i]._id,
+                    data: {
+                      name: currentAccount.username,
+                      username: currentAccount.username,
+                    },
+                  },
+                  {
+                    headers: {
+                      "X-Auth-Token": authTokenAdmin,
+                      "X-User-Id": userIdAdmin,
+                    },
+                  }
+                )
+                .then(async function (response) {
+                  //console.log(response.data);
+                  await axios
+                    .post(
+                      "https://chat.kltnvirtualclassroom.online/api/v1/login",
+                      {
+                        username: currentAccount.username,
+                        password: currentAccount.password,
+                      }
+                    )
+                    .then(async function (response) {
+                      if (response.data.status === "success") {
+                        currentAccount.authToken = response.data.data.authToken;
+                        currentAccount.id = response.data.data.userId;
+                        res.json(currentAccount);
+                      }
+                    });
+                });
+            }
+
+            if (i === listUser.length - 1) {
+              await axios
+                .post(
+                  "https://chat.kltnvirtualclassroom.online/api/v1/users.register",
+                  {
+                    username: currentAccount.username,
+                    pass: currentAccount.password,
+                    name: currentAccount.username,
+                    email: currentAccount.email,
+                  }
+                )
+                .then(async function (response) {
+                  await axios
+                    .post(
+                      "https://chat.kltnvirtualclassroom.online/api/v1/login",
+                      {
+                        username: currentAccount.username,
+                        password: currentAccount.password,
+                      }
+                    )
+                    .then(async function (response) {
+                      if (response.data.status === "success") {
+                        currentAccount.authToken = response.data.data.authToken;
+                        currentAccount.id = response.data.data.userId;
+                        res.json(currentAccount);
+                      }
+                    });
+                });
+            }
+          }
+
+          // const data = response.data.users.map(async (element) => {
+          //   if (element.username === currentAccount.username) {
+          //     console.log(element.username);
+          //     return true;
+          //   }
+          // if (element.emails[0].address === currentAccount.email) {
+          //   console.log(element.emails.address);
+          //   await axios
+          //     .post(
+          //       `https://chat.kltnvirtualclassroom.online/api/v1/users.update`,
+          //       {
+          //         userId: element.userId,
+          //         data: {
+          //           name: element.username,
+          //           username: element.username,
+          //         },
+          //       },
+          //       {
+          //         headers: {
+          //           "X-Auth-Token": authTokenAdmin,
+          //           "X-User-Id": userIdAdmin,
+          //         },
+          //       }
+          //     )
+          //     .then(async function () {
+          //       return true;
+          //     });
+          // }
+
+          dataCheck = false;
+          //}
+
+          // await checkUser();
+          // console.log(dataCheck);
+          // if (dataCheck) {
+          //   console.log("Login");
+
+          //   await axios
+          //     .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
+          //       username: currentAccount.username,
+          //       password: currentAccount.password,
+          //     })
+          //     .then(async function (response) {
+          //       if (response.data.status === "success") {
+          //         currentAccount.authToken = response.data.data.authToken;
+          //         currentAccount.id = response.data.data.userId;
+          //         res.json(currentAccount);
+          //       }
+          //     });
+          // } else {
+          //   console.log("Register");
+
+          //   await axios
+          //     .post(
+          //       "https://chat.kltnvirtualclassroom.online/api/v1/users.register",
+          //       {
+          //         username: currentAccount.username,
+          //         pass: currentAccount.password,
+          //         name: currentAccount.username,
+          //         email: currentAccount.email,
+          //       }
+          //     )
+          //     .then(async function (response) {
+          //       await axios
+          //         .post(
+          //           "https://chat.kltnvirtualclassroom.online/api/v1/login",
+          //           {
+          //             username: currentAccount.username,
+          //             password: currentAccount.password,
+          //           }
+          //         )
+          //         .then(async function (response) {
+          //           if (response.data.status === "success") {
+          //             currentAccount.authToken = response.data.data.authToken;
+          //             currentAccount.id = response.data.data.userId;
+          //             res.json(currentAccount);
+          //           }
+          //         });
+          //     });
+          // }
+        })
+        .catch(function (e) {
+          console.log("Checking user FAIL " + e.message);
+          //res.sendStatus(401);
+        });
+
+      //=========================================== Check room exist ======================================
+      await axios
+        .get(`https://chat.kltnvirtualclassroom.online/api/v1/channels.list`, {
+          headers: {
+            "X-Auth-Token": authTokenAdmin,
+            "X-User-Id": userIdAdmin,
+          },
+        })
+        .then(async function (response) {
+          const data = response.data.channels.find((element) => {
+            if (element.fname === currentAccount.roomId) return true;
+            return false;
           });
-      } else {
-        await axios
-          .post(
-            "https://chat.kltnvirtualclassroom.online/api/v1/users.register",
-            {
-              username: currentAccount.username,
-              pass: currentAccount.password,
-              name: currentAccount.username,
-              email: currentAccount.email,
-            }
-          )
-          .then(async function (response) {
+          if (!data) {
             await axios
-              .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
-                username: currentAccount.username,
-                password: currentAccount.password,
-              })
-              .then(async function (response) {
-                if (response.data.status === "success") {
-                  currentAccount.authToken = response.data.data.authToken;
-                  currentAccount.id = response.data.data.userId;
-                  res.json(currentAccount);
+              .post(
+                "https://chat.kltnvirtualclassroom.online/api/v1/channels.create",
+                {
+                  name: currentAccount.roomId,
+                },
+                {
+                  headers: {
+                    "X-Auth-Token": authTokenAdmin,
+                    "X-User-Id": userIdAdmin,
+                  },
                 }
+              )
+              .then(async function (response) {
+                console.log(response.data);
               });
-          });
-      }
+          }
+        })
+        .catch(function () {
+          console.log("channel FAIL");
+          //res.sendStatus(401);
+        });
     })
     .catch(function () {
-      console.log("user FAIL")
+      console.log("AUTH FAIL");
       //res.sendStatus(401);
     });
-
-  //=========================================== Check room exist ======================================
-  await axios
-    .get(`https://chat.kltnvirtualclassroom.online/api/v1/channels.list`, {
-      headers: {
-        "X-Auth-Token": authTokenAdmin,
-        "X-User-Id": userIdAdmin,
-      },
-    })
-    .then(async function (response) {
-      const data = response.data.channels.find((element) => {
-        if (element.fname === currentAccount.roomId) return true;
-        return false;
-      });
-      if (!data) {
-        await axios
-          .post(
-            "https://chat.kltnvirtualclassroom.online/api/v1/channels.create",
-            {
-              name: currentAccount.roomId,
-            },
-            {
-              headers: {
-                "X-Auth-Token": authTokenAdmin,
-                "X-User-Id": userIdAdmin,
-              },
-            }
-          )
-          .then(async function (response) {
-            console.log(response.data);
-          });
-      }
-    })
-    .catch(function () {
-      console.log("channel FAIL")
-      //res.sendStatus(401);
-    });
-  })
-  .catch(function () {
-    console.log("AUTH FAIL")
-    //res.sendStatus(401);
-  });
 });
 
 app.get("/currentInfor", function (req, res) {

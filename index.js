@@ -114,7 +114,7 @@ app.post("/getInfor", async function (req, res) {
   if (currentAccount.role === "tutor") currentAccount.role = "teacher";
 
   await axios
-    .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
+    .post("https://chat.virtedy.com/api/v1/login", {
       username: "nghianguyen",
       password: "12345678",
     })
@@ -122,10 +122,48 @@ app.post("/getInfor", async function (req, res) {
       authTokenAdmin = responseMain.data.data.authToken;
       userIdAdmin = responseMain.data.data.userId;
 
+      //=========================================== Check room exist ======================================
+      await axios
+        .get(`https://chat.virtedy.com/api/v1/channels.list`, {
+          headers: {
+            "X-Auth-Token": authTokenAdmin,
+            "X-User-Id": userIdAdmin,
+          },
+        })
+        .then(async function (response) {
+          const data = response.data.channels.find((element) => {
+            if (element.fname === currentAccount.roomId) return true;
+            return false;
+          });
+          if (!data) {
+            await axios
+              .post(
+                "https://chat.virtedy.com/api/v1/channels.create",
+                {
+                  name: currentAccount.roomId,
+                },
+                {
+                  headers: {
+                    "X-Auth-Token": authTokenAdmin,
+                    "X-User-Id": userIdAdmin,
+                  },
+                }
+              )
+              .then(async function (response) {
+                
+                console.log(response.data);
+              });
+          }
+        })
+        .catch(function () {
+          console.log("channel FAIL");
+          //res.sendStatus(401);
+        });
+
       // ===================================== Check user exsit =========================================
 
       await axios
-        .get(`https://chat.kltnvirtualclassroom.online/api/v1/users.list`, {
+        .get(`https://chat.virtedy.com/api/v1/users.list`, {
           headers: {
             "X-Auth-Token": authTokenAdmin,
             "X-User-Id": userIdAdmin,
@@ -137,12 +175,12 @@ app.post("/getInfor", async function (req, res) {
 
           //async function checkUser() {
           for (let i = 0; i < listUser.length; i++) {
-            //console.log(listUser[i].username);
+            console.log("Check user");
 
             if (listUser[i].username === currentAccount.username) {
               //console.log(listUser[i].username);
               await axios
-                .post("https://chat.kltnvirtualclassroom.online/api/v1/login", {
+                .post("https://chat.virtedy.com/api/v1/login", {
                   username: currentAccount.username,
                   password: currentAccount.password,
                 })
@@ -150,17 +188,34 @@ app.post("/getInfor", async function (req, res) {
                   if (response.data.status === "success") {
                     currentAccount.authToken = response.data.data.authToken;
                     currentAccount.id = response.data.data.userId;
+                    await axios.post(
+                      `https://chat.virtedy.com/api/v1/chat.postMessage`,
+                      {
+                        channel: `${currentAccount.roomId}`,
+                        alias: " ",
+                        emoji: ":none:",
+                        text: `**${currentAccount.username}** online`,
+                      },
+                      {
+                        headers: {
+                          "X-Auth-Token": authTokenAdmin,
+                          "X-User-Id": userIdAdmin,
+                        },
+                      }
+                    );
                     res.json(currentAccount);
                   }
                 });
               break;
             }
 
+            console.log(listUser[i]);
+
             if (listUser[i].emails[0].address === currentAccount.email) {
               //console.log("Checking email " + listUser[i].emails[0].address);
               await axios
                 .post(
-                  `https://chat.kltnvirtualclassroom.online/api/v1/users.update`,
+                  `https://chat.virtedy.com/api/v1/users.update`,
                   {
                     userId: listUser[i]._id,
                     data: {
@@ -179,7 +234,7 @@ app.post("/getInfor", async function (req, res) {
                   //console.log(response.data);
                   await axios
                     .post(
-                      "https://chat.kltnvirtualclassroom.online/api/v1/login",
+                      "https://chat.virtedy.com/api/v1/login",
                       {
                         username: currentAccount.username,
                         password: currentAccount.password,
@@ -189,16 +244,34 @@ app.post("/getInfor", async function (req, res) {
                       if (response.data.status === "success") {
                         currentAccount.authToken = response.data.data.authToken;
                         currentAccount.id = response.data.data.userId;
+                        await axios.post(
+                          `https://chat.virtedy.com/api/v1/chat.postMessage`,
+                          {
+                            channel: `${currentAccount.roomId}`,
+                            alias: "System",
+                            emoji: ":lettutor:",
+                            text: `**${currentAccount.username}** online`,
+                          },
+                          {
+                            headers: {
+                              "X-Auth-Token": authTokenAdmin,
+                              "X-User-Id": userIdAdmin,
+                            },
+                          }
+                        );
                         res.json(currentAccount);
                       }
                     });
                 });
             }
 
+            console.log("Check no email or user");
+
+
             if (i === listUser.length - 1) {
               await axios
                 .post(
-                  "https://chat.kltnvirtualclassroom.online/api/v1/users.register",
+                  "https://chat.virtedy.com/api/v1/users.register",
                   {
                     username: currentAccount.username,
                     pass: currentAccount.password,
@@ -209,7 +282,7 @@ app.post("/getInfor", async function (req, res) {
                 .then(async function (response) {
                   await axios
                     .post(
-                      "https://chat.kltnvirtualclassroom.online/api/v1/login",
+                      "https://chat.virtedy.com/api/v1/login",
                       {
                         username: currentAccount.username,
                         password: currentAccount.password,
@@ -219,6 +292,21 @@ app.post("/getInfor", async function (req, res) {
                       if (response.data.status === "success") {
                         currentAccount.authToken = response.data.data.authToken;
                         currentAccount.id = response.data.data.userId;
+                        await axios.post(
+                          `https://chat.virtedy.com/api/v1/chat.postMessage`,
+                          {
+                            channel: `${currentAccount.roomId}`,
+                            alias: "System",
+                            emoji: ":lettutor:",
+                            text: `**${currentAccount.username}** online`,
+                          },
+                          {
+                            headers: {
+                              "X-Auth-Token": authTokenAdmin,
+                              "X-User-Id": userIdAdmin,
+                            },
+                          }
+                        );
                         res.json(currentAccount);
                       }
                     });
@@ -308,46 +396,11 @@ app.post("/getInfor", async function (req, res) {
           // }
         })
         .catch(function (e) {
-          console.log("Checking user FAIL " + e.message);
+          console.log("Checking user FAIL " + e);
           //res.sendStatus(401);
         });
 
-      //=========================================== Check room exist ======================================
-      await axios
-        .get(`https://chat.kltnvirtualclassroom.online/api/v1/channels.list`, {
-          headers: {
-            "X-Auth-Token": authTokenAdmin,
-            "X-User-Id": userIdAdmin,
-          },
-        })
-        .then(async function (response) {
-          const data = response.data.channels.find((element) => {
-            if (element.fname === currentAccount.roomId) return true;
-            return false;
-          });
-          if (!data) {
-            await axios
-              .post(
-                "https://chat.kltnvirtualclassroom.online/api/v1/channels.create",
-                {
-                  name: currentAccount.roomId,
-                },
-                {
-                  headers: {
-                    "X-Auth-Token": authTokenAdmin,
-                    "X-User-Id": userIdAdmin,
-                  },
-                }
-              )
-              .then(async function (response) {
-                console.log(response.data);
-              });
-          }
-        })
-        .catch(function () {
-          console.log("channel FAIL");
-          //res.sendStatus(401);
-        });
+      
     })
     .catch(function () {
       console.log("AUTH FAIL");

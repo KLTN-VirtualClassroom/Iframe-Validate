@@ -248,8 +248,8 @@ app.post("/getInfor", async function (req, res) {
                           `https://chat.virtedy.com/api/v1/chat.postMessage`,
                           {
                             channel: `${currentAccount.roomId}`,
-                            alias: "System",
-                            emoji: ":lettutor:",
+                            alias: " ",
+                            emoji: ":none:",
                             text: `**${currentAccount.username}** online`,
                           },
                           {
@@ -296,8 +296,8 @@ app.post("/getInfor", async function (req, res) {
                           `https://chat.virtedy.com/api/v1/chat.postMessage`,
                           {
                             channel: `${currentAccount.roomId}`,
-                            alias: "System",
-                            emoji: ":lettutor:",
+                            alias: " ",
+                            emoji: ":none:",
                             text: `**${currentAccount.username}** online`,
                           },
                           {

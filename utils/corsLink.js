@@ -9,6 +9,8 @@ export const corsData = [
   "https://pdfui.virtedy.com",
   "https://pdfserver.virtedy.com",
   "https://video.virtedy.com",
+  "https://video2.virtedy.com",
   "https://vcui.virtedy.com",
+  "https://statistic.virtedy.com",
   "*"
 ];

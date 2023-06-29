@@ -18,6 +18,8 @@ import UserRoute from "./components/User/User.route.js";
 import MaterialRoute from "./components/Material/Material.route.js";
 import TopicRoute from "./components/Topic/Topic.route.js";
 import CourseRoute from "./components/Course/Course.route.js";
+import MaterialStatisticRoute from "./components/MaterialStatistic/MaterialStatistic.route.js";
+
 import FormData from "form-data";
 import multer from "multer";
 import * as MaterialService from "./components/Material/Material.service.js";
@@ -415,6 +417,8 @@ app.use("/user", UserRoute);
 app.use("/material", MaterialRoute);
 app.use("/topic", TopicRoute);
 app.use("/course", CourseRoute);
+app.use("/materialstatistic", MaterialStatisticRoute);
+
 
 //================Upload PDF===================
 app.post("/uploadPdf", upload.single("file"), async function (req, res) {

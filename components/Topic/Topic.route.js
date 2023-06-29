@@ -5,8 +5,7 @@ import * as TopicController from '../Topic/Topic.controller.js'
 const router = new Router();
 
 router.route('/getTopicByCourse').get(TopicController.getTopicByCourse);
-
-
+router.route('/getTopicById').get(TopicController.getTopicById);
 
 
 export default router;

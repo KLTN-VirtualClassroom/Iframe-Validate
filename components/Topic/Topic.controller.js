@@ -12,3 +12,14 @@ export async function getTopicByCourse(req, res, next) {
   }
 }
 
+export async function getTopicById(req, res, next) {
+  try {
+    console.log(req.body)
+    const payload = await TopicService.getTopicById(req.body.topicId);
+    //console.log(payload);
+    return res.json(payload);
+  } catch (error) {
+    return res.sendStatus(401);
+  }
+}
+

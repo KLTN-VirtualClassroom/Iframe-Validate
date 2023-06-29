@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const TopicSchema = new mongoose.Schema({
-  fileId: { type: String, require: true },
+  topicId: { type: String, require: true },
   courseId: { type: String, require: true },
   fileName: { type: String, require: true },
   fileNumber: { type: Number, require: true },

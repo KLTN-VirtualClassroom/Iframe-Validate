@@ -8,7 +8,7 @@ export const socketData = [
   // "http://localhost:8001",
   // "http://115.78.232.219:5013",
   // "http://115.78.232.219:5021",
-  "https://chat.virtedy.com",
+  "https://chat3.virtedy.com",
   "https://server.virtedy.com",
   "https://pdfui.virtedy.com",
   "https://pdfserver.virtedy.com",

@@ -109,7 +109,7 @@ app.post("/getInfor", async function (req, res) {
   if (currentAccount.role === "tutor") currentAccount.role = "teacher";
   if(dateGetAuth === null || new Date() - dateGetAuth > HALF_HOUR){
   await axios
-    .post("https://chat.virtedy.com/api/v1/login", {
+    .post("https://chat3.virtedy.com/api/v1/login", {
       username: process.env.USER_ADMIN,
       password: process.env.PASSWORD_ADMIN,
     })
@@ -126,7 +126,7 @@ app.post("/getInfor", async function (req, res) {
 
   //=========================================== Check room exist ======================================
   await axios
-    .get(`https://chat.virtedy.com/api/v1/channels.list`, {
+    .get(`https://chat3.virtedy.com/api/v1/channels.list`, {
       headers: {
         "X-Auth-Token": authTokenAdmin,
         "X-User-Id": userIdAdmin,
@@ -140,7 +140,7 @@ app.post("/getInfor", async function (req, res) {
       if (!data) {
         await axios
           .post(
-            "https://chat.virtedy.com/api/v1/channels.create",
+            "https://chat3.virtedy.com/api/v1/channels.create",
             {
               name: currentAccount.roomId,
             },
@@ -164,7 +164,7 @@ app.post("/getInfor", async function (req, res) {
   // ===================================== Check user exsit =========================================
 
   await axios
-    .get(`https://chat.virtedy.com/api/v1/users.list`, {
+    .get(`https://chat3.virtedy.com/api/v1/users.list`, {
       headers: {
         "X-Auth-Token": authTokenAdmin,
         "X-User-Id": userIdAdmin,
@@ -179,7 +179,7 @@ app.post("/getInfor", async function (req, res) {
       for (let i = 0; i < listUser.length; i++) {
         if (listUser[i].username === currentAccount.username) {
           await axios
-            .post("https://chat.virtedy.com/api/v1/login", {
+            .post("https://chat3.virtedy.com/api/v1/login", {
               username: currentAccount.username,
               password: currentAccount.password,
             })
@@ -188,7 +188,7 @@ app.post("/getInfor", async function (req, res) {
                 currentAccount.authToken = response.data.data.authToken;
                 currentAccount.id = response.data.data.userId;
                 await axios.post(
-                  `https://chat.virtedy.com/api/v1/chat.postMessage`,
+                  `https://chat3.virtedy.com/api/v1/chat.postMessage`,
                   {
                     channel: `${currentAccount.roomId}`,
                     alias: " ",
@@ -214,7 +214,7 @@ app.post("/getInfor", async function (req, res) {
             //console.log("Checking email " + listUser[i].emails[0].address);
             await axios
               .post(
-                `https://chat.virtedy.com/api/v1/users.update`,
+                `https://chat3.virtedy.com/api/v1/users.update`,
                 {
                   userId: listUser[i]._id,
                   data: {
@@ -232,7 +232,7 @@ app.post("/getInfor", async function (req, res) {
               .then(async function (response) {
                 //console.log(response.data);
                 await axios
-                  .post("https://chat.virtedy.com/api/v1/login", {
+                  .post("https://chat3.virtedy.com/api/v1/login", {
                     username: currentAccount.username,
                     password: currentAccount.password,
                   })
@@ -241,7 +241,7 @@ app.post("/getInfor", async function (req, res) {
                       currentAccount.authToken = response.data.data.authToken;
                       currentAccount.id = response.data.data.userId;
                       await axios.post(
-                        `https://chat.virtedy.com/api/v1/chat.postMessage`,
+                        `https://chat3.virtedy.com/api/v1/chat.postMessage`,
                         {
                           channel: `${currentAccount.roomId}`,
                           alias: " ",
@@ -265,7 +265,7 @@ app.post("/getInfor", async function (req, res) {
 
         if (i === listUser.length - 1) {
           await axios
-            .post("https://chat.virtedy.com/api/v1/users.register", {
+            .post("https://chat3.virtedy.com/api/v1/users.register", {
               username: currentAccount.username,
               pass: currentAccount.password,
               name: currentAccount.username,
@@ -273,7 +273,7 @@ app.post("/getInfor", async function (req, res) {
             })
             .then(async function (response) {
               await axios
-                .post("https://chat.virtedy.com/api/v1/login", {
+                .post("https://chat3.virtedy.com/api/v1/login", {
                   username: currentAccount.username,
                   password: currentAccount.password,
                 })
@@ -282,7 +282,7 @@ app.post("/getInfor", async function (req, res) {
                     currentAccount.authToken = response.data.data.authToken;
                     currentAccount.id = response.data.data.userId;
                     await axios.post(
-                      `https://chat.virtedy.com/api/v1/chat.postMessage`,
+                      `https://chat3.virtedy.com/api/v1/chat.postMessage`,
                       {
                         channel: `${currentAccount.roomId}`,
                         alias: " ",
